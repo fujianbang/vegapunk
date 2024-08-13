@@ -1,7 +1,24 @@
-# Tauri + SvelteKit + TypeScript
+# Vegapunk
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+`Vegapunk` is an SSH-based terminal tool that allows you to manage your servers and running services anytime, anywhere. With `Vegapunk`, you can create monitoring and operational automation tools, simplifying management tasks and increasing efficiency.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+- **SSH Terminal**: Access your servers through secure SSH connections.
+- **Monitoring and Operations**: Create monitoring and operational automation tools to keep track of server status and perform common operations in real-time.
+- **Cross-platform**: Seamlessly run on Windows, Linux, and macOS.
+
+## Getting Started
+
+### Run
+```bash
+pnpm install
+pnpm run tauri dev
+```
+
+## References
+
+- [Tauri](https://tauri.app/)
+- [Svelte](https://svelte.dev/)]
+- [Tailwind](https://tailwindcss.com/)
+- [Gitbuddy](https://github.com/fujianbang/GitBuddy)
