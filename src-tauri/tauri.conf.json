@@ -13,7 +13,9 @@
       {
         "title": "vegapunk",
         "width": 1552,
-        "height": 1012
+        "height": 1012,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay"
       }
     ],
     "security": {
