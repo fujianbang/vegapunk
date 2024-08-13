@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import "../app.css";
 
   let teams = [
@@ -9,6 +9,12 @@
       name: "Labs",
     },
   ];
+
+  let activeMenuItem = "monitoring";
+
+  function handleClickMenu(menuItem: string) {
+    activeMenuItem = menuItem;
+  }
 </script>
 
 <div>
@@ -31,7 +37,11 @@
                 <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
                 <a
                   href="/"
-                  class="group flex gap-x-3 rounded-md bg-gray-800 p-2 text-sm font-semibold leading-6 text-white"
+                  on:click={() => handleClickMenu("monitoring")}
+                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                  {activeMenuItem == 'monitoring'
+                    ? 'bg-gray-800 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'}"
                 >
                   <svg
                     class="h-6 w-6 shrink-0"
@@ -53,7 +63,11 @@
               <li>
                 <a
                   href="/hosts"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
+                  on:click={() => handleClickMenu("hosts")}
+                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                   {activeMenuItem == 'hosts'
+                    ? 'bg-gray-800 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'}"
                 >
                   <svg
                     class="h-6 w-6 shrink-0"
@@ -75,7 +89,11 @@
               <li>
                 <a
                   href="/sftp"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
+                  on:click={() => handleClickMenu("sftp")}
+                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                  {activeMenuItem == 'sftp'
+                    ? 'bg-gray-800 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'}"
                 >
                   <svg
                     class="h-6 w-6 shrink-0"
@@ -97,7 +115,11 @@
               <li>
                 <a
                   href="/port-forwarding"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
+                  on:click={() => handleClickMenu("port-forwarding")}
+                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6
+                  {activeMenuItem == 'port-forwarding'
+                    ? 'bg-gray-800 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800'}"
                 >
                   <svg
                     class="h-6 w-6 shrink-0"
