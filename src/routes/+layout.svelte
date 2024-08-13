@@ -1,5 +1,14 @@
 <script>
   import "../app.css";
+
+  let teams = [
+    {
+      name: "My Company",
+    },
+    {
+      name: "Labs",
+    },
+  ];
 </script>
 
 <div>
@@ -114,43 +123,21 @@
               Your teams
             </div>
             <ul role="list" class="-mx-2 mt-2 space-y-1">
-              <li>
-                <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
-                <a
-                  href="#"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
-                >
-                  <span
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white"
-                    >H</span
+              {#each teams as team, i}
+                <li>
+                  <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
+                  <a
+                    href="#"
+                    class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
                   >
-                  <span class="truncate">Heroicons</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
-                >
-                  <span
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white"
-                    >T</span
-                  >
-                  <span class="truncate">Tailwind Labs</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
-                >
-                  <span
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white"
-                    >W</span
-                  >
-                  <span class="truncate">Workcation</span>
-                </a>
-              </li>
+                    <span
+                      class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white"
+                      >{team.name.charAt(0)}</span
+                    >
+                    <span class="truncate">{team.name}</span>
+                  </a>
+                </li>
+              {/each}
             </ul>
           </li>
           <li class="-mx-6 mt-auto">
@@ -163,8 +150,8 @@
                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 alt=""
               />
-              <span class="sr-only">Your profile</span>
-              <span aria-hidden="true">Tom Cook</span>
+              <!-- <span class="sr-only">Your profile</span> -->
+              <span aria-hidden="true">Settings</span>
             </a>
           </li>
         </ul>
