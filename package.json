@@ -13,6 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@iconify/svelte": "^4.0.2",
     "@tailwindcss/forms": "0.5.8",
     "@tauri-apps/api": "2.0.0-rc.0",
     "@tauri-apps/plugin-shell": "2.0.0-rc.1"
