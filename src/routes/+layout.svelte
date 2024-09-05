@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from "@iconify/svelte";
   import "../app.css";
 
   let teams = [
@@ -23,11 +24,7 @@
     class=" fixed inset-y-0 left-0 z-50 block w-20 overflow-y-auto bg-gray-900 pb-4"
   >
     <div class="flex h-16 shrink-0 items-center justify-center">
-      <img
-        class="h-8 w-auto"
-        src="https://tailwindui.starxg.com/img/logos/mark.svg?color=indigo&shade=500"
-        alt="Your Company"
-      />
+      <Icon class="h-8 w-auto" icon="token-branded:pond" />
     </div>
     <nav class="mt-8">
       <ul role="list" class="flex flex-col items-center space-y-1">
