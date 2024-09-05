@@ -145,10 +145,7 @@
     </nav>
   </div>
 
-  <main class="py-10 lg:pl-72">
-    <div class="px-4 sm:px-6 lg:px-8">
-      <!-- main content -->
-      <slot></slot>
-    </div>
+  <main class="pl-20 h-screen">
+    <slot></slot>
   </main>
 </div>
