@@ -4,6 +4,9 @@ export enum hostAuthMethod {
 }
 
 export enum hostOs {
+  Windows,
+  Apple,
+  Android,
   Ubuntu,
   Fedora,
   openSUSE,
@@ -12,6 +15,7 @@ export enum hostOs {
   Debian,
   RedHat,
   Kali,
+  RockyLinux,
 }
 
 export interface HostInfo {
