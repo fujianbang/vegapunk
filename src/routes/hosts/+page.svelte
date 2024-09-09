@@ -3,6 +3,7 @@
 
   import { hostOs } from "$lib/types/host";
   import Icon from "@iconify/svelte";
+  import { goto } from "$app/navigation";
 
   let { hostInfo: HostList } = data;
 
@@ -36,6 +37,10 @@
         return "devicon:linux";
     }
   }
+
+  function clickTerminal(host: string) {
+    goto(`/hosts/terminal`);
+  }
 </script>
 
 <div class="mx-auto max-w-7xl p-8">
@@ -63,6 +68,7 @@
               id="options-menu-0-button"
               aria-expanded="false"
               aria-haspopup="true"
+              on:click={() => clickTerminal(host.name)}
             >
               <Icon icon="ion:terminal" />
             </button>
