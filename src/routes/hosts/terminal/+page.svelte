@@ -2,6 +2,7 @@
   import { Terminal } from "@xterm/xterm";
   import { FitAddon } from "@xterm/addon-fit";
   import { onMount } from "svelte";
+  import '@xterm/xterm/css/xterm.css';
 
   /**
    * @type {HTMLElement}
