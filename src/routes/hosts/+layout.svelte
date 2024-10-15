@@ -2,7 +2,6 @@
   import List from "./List.svelte";
 </script>
 
-<div>
-  <p>terminal</p>
+<div class="h-screen">
   <slot />
 </div>

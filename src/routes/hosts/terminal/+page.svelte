@@ -2,7 +2,9 @@
   import { Terminal } from "@xterm/xterm";
   import { FitAddon } from "@xterm/addon-fit";
   import { onMount } from "svelte";
-  import '@xterm/xterm/css/xterm.css';
+  import "@xterm/xterm/css/xterm.css";
+
+  import HeaderTabs from "./HeaderTabs.svelte";
 
   /**
    * @type {HTMLElement}
@@ -42,4 +44,7 @@
   });
 </script>
 
-<div bind:this={terminalObj}></div>
+<div>
+  <HeaderTabs />
+  <div bind:this={terminalObj}></div>
+</div>
