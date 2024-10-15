@@ -1,148 +1,101 @@
-<div>
-  <h2 class="text-sm font-medium text-gray-500">Pinned Projects</h2>
+<script lang="ts">
+  export let data;
+
+  import { hostOs } from "$lib/types/host";
+  import Icon from "@iconify/svelte";
+  import { goto } from "$app/navigation";
+
+  let { hostInfo: HostList } = data;
+
+  function osSvgIconMapping(os: hostOs) {
+    switch (os) {
+      case hostOs.Windows:
+        return "devicon:windows8";
+      case hostOs.Apple:
+        return "devicon:apple";
+      case hostOs.Android:
+        return "devicon:android";
+      case hostOs.Debian:
+        return "devicon:debian";
+      case hostOs.Ubuntu:
+        return "logos:ubuntu";
+      case hostOs.Fedora:
+        return "devicon:fedora";
+      case hostOs.openSUSE:
+        return "devicon:opensuse";
+      case hostOs.CentOS:
+        return "devicon:centos";
+      case hostOs.ArchLinux:
+        return "devicon:archlinux";
+      case hostOs.RedHat:
+        return "devicon:kalilinux";
+      case hostOs.Kali:
+        return "devicon:kalilinux";
+      case hostOs.RockyLinux:
+        return "devicon:rockylinux";
+      default:
+        return "devicon:linux";
+    }
+  }
+
+  function clickTerminal(host: string) {
+    goto(`/hosts/terminal`);
+  }
+</script>
+
+<div class="mx-auto max-w-7xl p-8">
   <ul
     role="list"
-    class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
+    class="grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-4 xl:gap-x-6"
   >
-    <li class="col-span-1 flex rounded-md shadow-sm">
-      <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-pink-600 text-sm font-medium text-white"
-      >
-        GA
-      </div>
-      <div
-        class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white"
-      >
-        <div class="flex-1 truncate px-4 py-2 text-sm">
-          <a href="#" class="font-medium text-gray-900 hover:text-gray-600"
-            >Graph API</a
-          >
-          <p class="text-gray-500">16 Members</p>
-        </div>
-        <div class="flex-shrink-0 pr-2">
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <span class="sr-only">Open options</span>
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
+    {#each HostList as host}
+      <li class="overflow-hidden rounded-xl border border-gray-200">
+        <div
+          class="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-4"
+        >
+          <Icon
+            icon={osSvgIconMapping(host.os)}
+            class="h-10 w-10 p-1 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
+          />
+
+          <div class="text-sm font-medium leading-6 text-gray-900">
+            {host.name}
+          </div>
+          <div class="relative ml-auto">
+            <button
+              type="button"
+              class="-m-2.5 block hover:text-gray-500"
+              id="options-menu-0-button"
+              aria-expanded="false"
+              aria-haspopup="true"
+              on:click={() => clickTerminal(host.name)}
             >
-              <path
-                d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </li>
-    <li class="col-span-1 flex rounded-md shadow-sm">
-      <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-purple-600 text-sm font-medium text-white"
-      >
-        CD
-      </div>
-      <div
-        class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white"
-      >
-        <div class="flex-1 truncate px-4 py-2 text-sm">
-          <a href="#" class="font-medium text-gray-900 hover:text-gray-600"
-            >Component Design</a
-          >
-          <p class="text-gray-500">12 Members</p>
-        </div>
-        <div class="flex-shrink-0 pr-2">
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <span class="sr-only">Open options</span>
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
+              <Icon icon="ion:terminal" />
+            </button>
+            <!-- <button
+              type="button"
+              class="-m-2.5 block hover:text-gray-500" 
+              id="options-menu-0-button"
+              aria-expanded="false"
+              aria-haspopup="true"
             >
-              <path
-                d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"
-              />
-            </svg>
-          </button>
+              <Icon icon="ion:terminal" />
+            </button> -->
+          </div>
         </div>
-      </div>
-    </li>
-    <li class="col-span-1 flex rounded-md shadow-sm">
-      <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-yellow-500 text-sm font-medium text-white"
-      >
-        T
-      </div>
-      <div
-        class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white"
-      >
-        <div class="flex-1 truncate px-4 py-2 text-sm">
-          <a href="#" class="font-medium text-gray-900 hover:text-gray-600"
-            >Templates</a
-          >
-          <p class="text-gray-500">16 Members</p>
-        </div>
-        <div class="flex-shrink-0 pr-2">
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <span class="sr-only">Open options</span>
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </li>
-    <li class="col-span-1 flex rounded-md shadow-sm">
-      <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-green-500 text-sm font-medium text-white"
-      >
-        RC
-      </div>
-      <div
-        class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white"
-      >
-        <div class="flex-1 truncate px-4 py-2 text-sm">
-          <a href="#" class="font-medium text-gray-900 hover:text-gray-600"
-            >React Components</a
-          >
-          <p class="text-gray-500">8 Members</p>
-        </div>
-        <div class="flex-shrink-0 pr-2">
-          <button
-            type="button"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <span class="sr-only">Open options</span>
-            <svg
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </li>
+        <dl class="-my-3 divide-y divide-gray-100 px-4 py-3 text-sm leading-3">
+          <div class="flex justify-between gap-x-4 py-3">
+            <dt class="text-gray-500">IP Address</dt>
+            <dd class="text-gray-700">
+              <div class="flex">
+                <span>
+                  {host.address}
+                </span>
+              </div>
+            </dd>
+          </div>
+        </dl>
+      </li>
+    {/each}
   </ul>
 </div>
