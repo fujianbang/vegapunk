@@ -3,24 +3,37 @@
   import { FitAddon } from "@xterm/addon-fit";
   import { onMount } from "svelte";
 
+  /**
+   * @type {HTMLElement}
+   */
   let terminalObj;
 
   function initTerminal() {
-    terminalObj = document.getElementById("terminal");
-
-    console.log(terminalObj);
+    // terminalObj = document.getElementById("terminal");
 
     if (!terminalObj) {
       alert("No terminal found");
       return;
     }
 
-    var term = new Terminal();
+    var term = new Terminal({
+      cursorBlink: true,
+      theme: {
+        foreground: "red", //字体
+        background: "#1e1e1e", //背景色
+      },
+    });
+    // addon
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
-    term.open(terminalObj);
     fitAddon.fit();
-    term.write("Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ");
+
+    term.open(terminalObj);
+    term.write(`Welcome to the Vegapunk!`);
+    term.onData((data) => {
+      console.log(data);
+      term.write(data);
+    });
   }
 
   onMount(() => {
@@ -28,4 +41,4 @@
   });
 </script>
 
-<div id="terminal"></div>
+<div bind:this={terminalObj}></div>
