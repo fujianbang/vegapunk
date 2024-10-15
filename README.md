@@ -12,8 +12,8 @@
 
 ### Run
 ```bash
-pnpm install
-pnpm run tauri dev
+bun install
+bun run tauri dev
 ```
 
 ## References
