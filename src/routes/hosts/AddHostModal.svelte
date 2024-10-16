@@ -1,6 +1,25 @@
 <script lang="ts">
   export let open: boolean = false;
 
+  let address = "";
+  let port = 22;
+  let username = "";
+  let password = "";
+
+  function connect() {
+    // TODO add validation
+    alert(
+      "Connecting to [" +
+        address +
+        ":" +
+        port +
+        "] with credentials: " +
+        username +
+        ":" +
+        password
+    );
+  }
+
   function closeModal() {
     console.log("close");
     open = false;
@@ -14,16 +33,6 @@
     role="dialog"
     aria-modal="true"
   >
-    <!--
-    Background backdrop, show/hide based on modal state.
-
-    Entering: "ease-out duration-300"
-      From: "opacity-0"
-      To: "opacity-100"
-    Leaving: "ease-in duration-200"
-      From: "opacity-100"
-      To: "opacity-0"
-  -->
     <div
       class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
       aria-hidden="true"
@@ -33,16 +42,6 @@
       <div
         class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
       >
-        <!--
-        Modal panel, show/hide based on modal state.
-
-        Entering: "ease-out duration-300"
-          From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          To: "opacity-100 translate-y-0 sm:scale-100"
-        Leaving: "ease-in duration-200"
-          From: "opacity-100 translate-y-0 sm:scale-100"
-          To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-      -->
         <div
           class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6"
         >
@@ -50,7 +49,8 @@
             <div class="relative flex items-center">
               <div class="flex-auto">
                 <input
-                  type="email"
+                  bind:value={address}
+                  type="text"
                   class="peer py-2 px-3 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                   placeholder="IP or hostname"
                 />
@@ -77,6 +77,7 @@
 
               <div class="relative flex-initial w-32 ml-5">
                 <input
+                  bind:value={port}
                   type="number"
                   class="peer py-2 px-3 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                   placeholder="Port"
@@ -101,7 +102,8 @@
 
             <div class="relative">
               <input
-                type="email"
+                bind:value={username}
+                type="text"
                 class="peer py-2 px-3 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                 placeholder="Username"
               />
@@ -128,6 +130,7 @@
 
             <div class="relative">
               <input
+                bind:value={password}
                 type="password"
                 class="peer py-2 px-3 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                 placeholder="Password"
@@ -160,8 +163,8 @@
           >
             <button
               type="button"
-              class="inline-flex w-full justify-center rounded-md bg-orange-400 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
-              >Connect</button
+              class="inline-flex w-full justify-center rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:col-start-2"
+              on:click={connect}>Connect</button
             >
             <button
               type="button"
