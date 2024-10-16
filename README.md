@@ -22,6 +22,6 @@ bun run tauri dev
 ## References
 
 - [Tauri](https://tauri.app/)
-- [Svelte](https://svelte.dev/)]
+- [Svelte](https://svelte.dev/)
 - [Tailwind](https://tailwindcss.com/)
 - [Gitbuddy](https://github.com/fujianbang/GitBuddy)
