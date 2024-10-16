@@ -2,6 +2,9 @@
 
 `Vegapunk` is an SSH-based terminal tool that allows you to manage your servers and running services anytime, anywhere. With `Vegapunk`, you can create monitoring and operational automation tools, simplifying management tasks and increasing efficiency.
 
+> [!WARNING]
+> This project is currently in **development**.
+
 ## Features
 
 - **SSH Terminal**: Access your servers through secure SSH connections.
@@ -12,13 +15,13 @@
 
 ### Run
 ```bash
-pnpm install
-pnpm run tauri dev
+bun install
+bun run tauri dev
 ```
 
 ## References
 
 - [Tauri](https://tauri.app/)
-- [Svelte](https://svelte.dev/)]
+- [Svelte](https://svelte.dev/)
 - [Tailwind](https://tailwindcss.com/)
 - [Gitbuddy](https://github.com/fujianbang/GitBuddy)
