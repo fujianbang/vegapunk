@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invoke } from "@tauri-apps/api/core";
+
   export let open: boolean = false;
 
   let address = "";
@@ -8,16 +10,22 @@
 
   function connect() {
     // TODO add validation
-    alert(
-      "Connecting to [" +
-        address +
-        ":" +
-        port +
-        "] with credentials: " +
-        username +
-        ":" +
-        password
-    );
+    // alert(
+    //   "Connecting to [" +
+    //     address +
+    //     ":" +
+    //     port +
+    //     "] with credentials: " +
+    //     username +
+    //     ":" +
+    //     password
+    // );
+
+    invoke("add_new_host", { address, port, username, password })
+      .then(() => {
+        open = false;
+      })
+      .catch((e) => alert(e));
   }
 
   function closeModal() {
