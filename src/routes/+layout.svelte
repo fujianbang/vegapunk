@@ -2,15 +2,6 @@
   import Icon from "@iconify/svelte";
   import "../app.css";
 
-  let teams = [
-    {
-      name: "My Company",
-    },
-    {
-      name: "Labs",
-    },
-  ];
-
   let activeMenuItem = "monitoring";
 
   function handleClickMenu(menuItem: string) {
@@ -18,10 +9,9 @@
   }
 </script>
 
-<div>
-  <!-- Static sidebar for desktop -->
+<div class="flex h-screen">
   <div
-    class=" fixed inset-y-0 left-0 z-50 block w-20 overflow-y-auto bg-gray-900 pb-4"
+    class="w-20 overflow-y-auto bg-gray-900"
   >
     <div class="flex h-16 shrink-0 items-center justify-center">
       <Icon class="h-8 w-auto" icon="token-branded:pond" />
@@ -166,7 +156,7 @@
     </nav>
   </div>
 
-  <main class="pl-20 h-screen">
+  <main class="flex-1 h-full">
     <slot></slot>
   </main>
 </div>
