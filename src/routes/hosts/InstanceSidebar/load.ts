@@ -3,7 +3,7 @@ import {hostAuthMethod, hostOs, type HostInfo} from "$lib/types/host";
 export function load() {
     let hosts: HostInfo[] = [
         {
-            name: "Windows Server",
+            name: "Windows Server Server Server",
             address: "192.168.1.1",
             port: 22,
             authMethod: hostAuthMethod.Password,

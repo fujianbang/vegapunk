@@ -5,7 +5,7 @@
 
 
 <div class="flex h-full">
-    <div class="flex-none w-[350px] h-full overflow-hidden">
+    <div class="flex-none w-[266px] h-full overflow-hidden">
         <InstanceSidebar/>
     </div>
 

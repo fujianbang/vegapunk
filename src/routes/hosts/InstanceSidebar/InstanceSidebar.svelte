@@ -59,7 +59,7 @@
                         <Icon
                                 icon={osSvgIconMapping(host.os)}
                         />
-                        <span class="text-sm">{host.name}</span>
+                        <p class="text-sm w-40 text-ellipsis overflow-hidden whitespace-nowrap">{host.name}</p>
                     </div>
                     <div>
                         <button type="button"
