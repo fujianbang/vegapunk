@@ -1,5 +1,6 @@
 <script lang="ts">
     import InstanceSidebar from "./InstanceSidebar/InstanceSidebar.svelte";
+    import Terminal from "./Terminal/Terminal.svelte";
 
 </script>
 
@@ -9,7 +10,7 @@
         <InstanceSidebar/>
     </div>
 
-    <div class="flex-1 bg-cyan-50">
-        test content
+    <div class="flex-1 bg-cyan-50 h-full">
+        <Terminal/>
     </div>
 </div>
