@@ -1,6 +1,6 @@
+use ssh2::Session;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use ssh2::Session;
 
 /*
 https://unix.stackexchange.com/questions/246436/how-to-set-a-dynamic-message-of-the-day-motd-in-debian-jessie-8-2-for-ssh
