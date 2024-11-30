@@ -4,6 +4,7 @@
     import {crossfade} from 'svelte/transition';
     import Terminal from "./Terminal/Terminal.svelte";
     import InstanceSidebar from "./InstanceSidebar/InstanceSidebar.svelte";
+    import Icon from "@iconify/svelte";
 
     const {
         elements: {root, list, content, trigger},
@@ -33,13 +34,10 @@
             <div use:melt={$list} class="flex items-center bg-[#292929] text-[#C2C2C2] ">
                 {#each triggers as triggerItem}
                     <button use:melt={$trigger(triggerItem.id)}
-                            class="p-2 text-sm {triggerItem.id === $value ? 'bg-[#181818]' : ''}">
-                        {triggerItem.title}
-                        {#if $value === triggerItem.id}
-                            <div in:send={{ key: 'trigger' }} out:receive={{ key: 'trigger' }}
-                                 class="absolute bottom-1 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-white"
-                            />
-                        {/if}
+                            class="p-2 text-sm flex items-center {triggerItem.id === $value ? 'bg-[#181818]' : ''}">
+                        <Icon icon="icon-park-outline:terminal" class="mr-1"/>
+                        <span>{triggerItem.title}</span>
+                        <Icon icon="icon-park-outline:close-small" class="ml-2"/>
                     </button>
                 {/each}
             </div>
