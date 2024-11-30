@@ -47,5 +47,5 @@
 
 <div class="h-full">
     <HeaderTabs/>
-    <div bind:this={terminalObj}></div>
+    <div class="h-full" bind:this={terminalObj}></div>
 </div>

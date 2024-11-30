@@ -9,7 +9,7 @@
   }
 </script>
 
-<div class="flex h-screen">
+<div class="flex h-full">
   <div
     class="w-20 overflow-y-auto bg-gray-900"
   >
