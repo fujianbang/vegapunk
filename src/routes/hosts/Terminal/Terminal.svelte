@@ -3,8 +3,6 @@
     import {FitAddon} from "@xterm/addon-fit";
     import {onMount} from "svelte";
     import "@xterm/xterm/css/xterm.css";
-    import HeaderTabs from "./HeaderTabs.svelte";
-
 
     /**
      * @type {HTMLElement}
@@ -23,8 +21,8 @@
             cursorBlink: true,
             fontSize: 14,
             theme: {
-                foreground: "red", //字体
-                background: "#1e1e1e", //背景色
+                foreground: "#e0e1e4", //字体
+                background: "#181818",
             },
         });
         // addon
@@ -45,7 +43,4 @@
     });
 </script>
 
-<div class="h-full">
-    <HeaderTabs/>
-    <div class="h-full" bind:this={terminalObj}></div>
-</div>
+<div class="h-full" bind:this={terminalObj}></div>
