@@ -1,6 +1,37 @@
 import {hostAuthMethod, hostOs, type HostInfo} from "$lib/types/host";
 
+function osSvgIconMapping(os: hostOs) {
+    switch (os) {
+        case hostOs.Windows:
+            return "devicon:windows8";
+        case hostOs.Apple:
+            return "devicon:apple";
+        case hostOs.Android:
+            return "devicon:android";
+        case hostOs.Debian:
+            return "devicon:debian";
+        case hostOs.Ubuntu:
+            return "logos:ubuntu";
+        case hostOs.Fedora:
+            return "devicon:fedora";
+        case hostOs.openSUSE:
+            return "devicon:opensuse";
+        case hostOs.CentOS:
+            return "devicon:centos";
+        case hostOs.ArchLinux:
+            return "devicon:archlinux";
+        case hostOs.RedHat:
+            return "devicon:kalilinux";
+        case hostOs.Kali:
+            return "devicon:kalilinux";
+        case hostOs.RockyLinux:
+            return "devicon:rockylinux";
+        default:
+            return "devicon:linux";
+    }
+}
 export function load() {
+    let osIcon = osSvgIconMapping;
     let hosts: HostInfo[] = [
         {
             name: "Windows Server Server Server",
@@ -94,5 +125,6 @@ export function load() {
 
     return {
         hostInfo: hosts,
+        osIcon: osIcon,
     };
 }
