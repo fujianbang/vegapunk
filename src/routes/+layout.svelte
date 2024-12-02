@@ -36,11 +36,10 @@
         }
     ]
 
-    function activeMenu(menu: MenuItem) {
+    function activeMenu(menuId: string) {
         for (let i = 0; i < menus.length; i++) {
-            menus[i].active = false;
+            menus[i].active = menus[i].id === menuId;
         }
-        menu.active = true;
     }
 </script>
 
