@@ -46,9 +46,9 @@
 <div class="flex h-screen">
     <div class="w-14 overflow-y-auto bg-gray-900">
         <div class="flex h-16 shrink-0 items-center justify-center">
-            <Icon class="h-8 w-auto" icon="token-branded:pond"/>
+            <Icon class="h-8 w-auto" icon="devicon:svelte"/>
         </div>
-        <nav class="mt-8">
+        <nav class="mt-2">
             <ul role="list" class="flex flex-col items-center space-y-1">
                 {#each menus as menu}
                     <li>
