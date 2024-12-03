@@ -45,10 +45,10 @@
                 <Terminal/>
             </div>
             <div use:melt={$content('tab-2')} class="grow bg-white">
-                <Terminal/>
+                <!--                <Terminal/>-->
             </div>
             <div use:melt={$content('tab-3')} class="grow bg-white">
-                <Terminal/>
+                <!--                <Terminal/>-->
             </div>
         </div>
 
