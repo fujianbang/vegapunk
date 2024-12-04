@@ -5,13 +5,14 @@
     import "@xterm/xterm/css/xterm.css";
     import {AttachAddon} from '@xterm/addon-attach';
 
-
     let terminalObj: HTMLElement;
 
     function packageMessage(message: string) {
         return JSON.stringify({
             type: "data",
-            payload: message,
+            payload: {
+                data: message
+            },
         });
     }
 
@@ -29,35 +30,37 @@
                 background: "#181818",
             },
         });
-        // addon
+
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
+        term.open(terminalObj);
         fitAddon.fit();
 
-        const ws = new WebSocket("ws://localhost:8080/socket?instance_id=a706fe14-d770-4e74-813f-1bc592476eda&container=nginx");
-        ws.onopen = function () {
-            console.log("open");
-        }
+        const ws = new WebSocket("ws://localhost:1234/ws/a706fe14-d770-4e74-813f-1bc592476eda/nginx");
+        const attachAddon = new AttachAddon(ws, {bidirectional: true});
+        term.loadAddon(attachAddon);
 
-        ws.onclose = function () {
-            console.log("close");
-        };
-
-        ws.onmessage = function (e) {
-            console.log("message", e.data);
-            term.write(e.data);
-        };
-
-        // const attachAddon = new AttachAddon(ws);
-        // term.loadAddon(attachAddon);
-
-        term.open(terminalObj);
         term.write(`Welcome to the Vegapunk!\r\n`);
         term.onData((data) => {
             const msg = packageMessage(data)
             ws.send(msg)
         });
+        term.onResize((size) => {
+            const msg = JSON.stringify({
+                type: "resize",
+                payload: {
+                    width: size.cols,
+                    height: size.rows
+                }
+            })
+            ws.send(msg)
+        })
 
+        window.addEventListener("resize", resizeScreen)
+
+        function resizeScreen() {
+            fitAddon.fit()
+        }
     }
 
     onMount(() => {

@@ -30,7 +30,7 @@
     </div>
 
     <div class="flex-1 bg-cyan-50 h-full">
-        <div use:melt={$root}>
+        <div use:melt={$root} class="h-full">
             <div use:melt={$list} class="flex items-center bg-[#292929] text-[#C2C2C2] ">
                 {#each triggers as triggerItem}
                     <button use:melt={$trigger(triggerItem.id)}
