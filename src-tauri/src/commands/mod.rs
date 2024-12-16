@@ -69,7 +69,7 @@ pub fn get_hosts() -> Vec<Host> {
             id: "3".to_string(),
             name: "Host 3".to_string(),
             address: "192.168.1.3".to_string(),
-            port: 22,
+            port: 60022,
             auth_method: AuthMethod::Password,
             os: HostOS::Apple,
             comment: "This is yet another comment".to_string(),
