@@ -2,17 +2,50 @@
     import AddHostModal from "../routes/hosts/AddHostModal.svelte";
     import {load} from "./load"
     import Icon from "@iconify/svelte";
-    import {hostOs} from "$lib/types/host";
+    import {type HostInfo, osType} from "$lib/types/host";
     import {invoke_host_list} from "$lib/command";
+    import {onMount} from "svelte";
 
-    let hosts = load().hostInfo;
+    let hosts: HostInfo[] = [];
 
-    invoke_host_list().then(data => {
-        console.log(data)
-    });
+    const load_host_list = async () => {
+        hosts = await invoke_host_list();
+    }
 
+    onMount(async () => {
+        await load_host_list()
+    })
 
-    let osSvgIconMapping = load().osIcon;
+    let osSvgIconMapping = (os: osType) => {
+        switch (os) {
+            case osType.Windows:
+                return "devicon:windows8";
+            case osType.Apple:
+                return "devicon:apple";
+            case osType.Android:
+                return "devicon:android";
+            case osType.Debian:
+                return "devicon:debian";
+            case osType.Ubuntu:
+                return "logos:ubuntu";
+            case osType.Fedora:
+                return "devicon:fedora";
+            case osType.OpenSUSE:
+                return "devicon:opensuse";
+            case osType.CentOS:
+                return "devicon:centos";
+            case osType.ArchLinux:
+                return "devicon:archlinux";
+            case osType.RedHat:
+                return "devicon:kalilinux";
+            case osType.Kali:
+                return "devicon:kalilinux";
+            case osType.RockyLinux:
+                return "devicon:rockylinux";
+            default:
+                return "devicon:linux";
+        }
+    }
 
     let showAddHostModal = false;
 

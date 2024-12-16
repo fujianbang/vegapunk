@@ -1,28 +1,30 @@
 export enum hostAuthMethod {
-  Password,
-  PublicKey,
+    Password,
+    PublicKey,
 }
 
-export enum hostOs {
-  Windows,
-  Apple,
-  Android,
-  Ubuntu,
-  Fedora,
-  openSUSE,
-  CentOS,
-  ArchLinux,
-  Debian,
-  RedHat,
-  Kali,
-  RockyLinux,
+export enum osType {
+    Windows,
+    Apple,
+    Android,
+    Ubuntu,
+    Fedora,
+    OpenSUSE,
+    CentOS,
+    ArchLinux,
+    Debian,
+    RedHat,
+    Kali,
+    RockyLinux,
+    Unknown = 99,
 }
 
 export interface HostInfo {
-  name: string; /// aaa
-  address: string;
-  port: number;
-  authMethod: hostAuthMethod;
-  os: hostOs;
-  comment: string;
+    id: string,
+    name: string;
+    address: string;
+    port: number;
+    auth_method: hostAuthMethod;
+    os: osType;
+    comment: string;
 }
