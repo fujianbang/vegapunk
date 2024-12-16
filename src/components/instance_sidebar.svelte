@@ -6,14 +6,7 @@
     import {onMount} from "svelte";
 
     let hosts: HostInfo[] = [];
-
-    const load_host_list = async () => {
-        hosts = await invoke_host_list();
-    }
-
-    onMount(async () => {
-        await load_host_list()
-    })
+    let showAddHostModal = false;
 
     let osSvgIconMapping = (os: osType) => {
         switch (os) {
@@ -46,8 +39,13 @@
         }
     }
 
-    let showAddHostModal = false;
+    const load_host_list = async () => {
+        hosts = await invoke_host_list();
+    }
 
+    onMount(async () => {
+        await load_host_list()
+    })
 </script>
 
 <div class="flex flex-col divide-y divide-slate-200">
