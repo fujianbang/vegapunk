@@ -8,6 +8,9 @@
     let hosts: HostInfo[] = [];
     let showAddHostModal = false;
 
+    let loading = true;
+
+
     let osSvgIconMapping = (os: osType) => {
         switch (os) {
             case osType.Windows:
@@ -41,6 +44,7 @@
 
     const load_host_list = async () => {
         hosts = await invoke_host_list();
+        loading = false;
     }
 
     onMount(async () => {
@@ -59,6 +63,14 @@
         </button>
     </div>
     <div class="divide-y divide-slate-100 overflow-auto">
+        {#if loading}
+            <div class="flex m-4 flex-col gap-4">
+                <div class="skeleton h-4 w-full"></div>
+                <div class="skeleton h-4 w-full"></div>
+                <div class="skeleton h-4 w-full"></div>
+                <div class="skeleton h-4 w-full"></div>
+            </div>
+        {/if}
         {#each hosts as host}
             <div class="p-4 transition hover:bg-sky-100">
                 <div class="flex items-center justify-between">
