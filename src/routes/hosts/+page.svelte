@@ -3,7 +3,7 @@
     import {cubicInOut} from 'svelte/easing';
     import {crossfade} from 'svelte/transition';
     import Terminal from "./Terminal/Terminal.svelte";
-    import InstanceSidebar from "./InstanceSidebar/InstanceSidebar.svelte";
+    import InstanceSidebar from "../../components/instance_sidebar.svelte";
     import Icon from "@iconify/svelte";
 
     const {

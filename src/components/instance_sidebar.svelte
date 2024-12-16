@@ -1,13 +1,21 @@
 <script lang="ts">
-    import AddHostModal from "../AddHostModal.svelte";
+    import AddHostModal from "../routes/hosts/AddHostModal.svelte";
     import {load} from "./load"
     import Icon from "@iconify/svelte";
     import {hostOs} from "$lib/types/host";
+    import {invoke_host_list} from "$lib/command";
 
     let hosts = load().hostInfo;
+
+    invoke_host_list().then(data => {
+        console.log(data)
+    });
+
+
     let osSvgIconMapping = load().osIcon;
 
     let showAddHostModal = false;
+
 </script>
 
 <div class="flex flex-col divide-y divide-slate-200">
