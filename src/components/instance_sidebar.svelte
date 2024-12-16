@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AddHostModal from "../routes/hosts/AddHostModal.svelte";
+    import AddHostModal from "./modal_add_host.svelte";
     import Icon from "@iconify/svelte";
     import {type HostInfo, osType} from "$lib/types/host";
     import {invoke_host_list} from "$lib/command";

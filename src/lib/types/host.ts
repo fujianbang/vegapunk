@@ -1,4 +1,4 @@
-export enum hostAuthMethod {
+export enum HostAuthMethod {
     Password,
     PublicKey,
 }
@@ -24,7 +24,15 @@ export interface HostInfo {
     name: string;
     address: string;
     port: number;
-    auth_method: hostAuthMethod;
+    auth_method: HostAuthMethod;
     os: osType;
     comment: string;
+}
+
+export interface AddNewHostRequest {
+    name: string;
+    address: string;
+    port: number;
+    username: string;
+    password: string;
 }

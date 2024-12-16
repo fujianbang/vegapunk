@@ -1,5 +1,6 @@
 <script lang="ts">
-    import {invoke} from "@tauri-apps/api/core";
+    import {invoke_host_add} from "$lib/command";
+    import {type AddNewHostRequest, HostAuthMethod} from "$lib/types/host";
 
     export let open: boolean = false;
 
@@ -8,24 +9,15 @@
     let username = "";
     let password = "";
 
-    function connect() {
-        // TODO add validation
-        // alert(
-        //   "Connecting to [" +
-        //     address +
-        //     ":" +
-        //     port +
-        //     "] with credentials: " +
-        //     username +
-        //     ":" +
-        //     password
-        // );
-
-        invoke("add_new_host", {address, port, username, password})
-            .then(() => {
-                open = false;
-            })
-            .catch((e) => alert(e));
+    async function connect() {
+        const host: AddNewHostRequest = {
+            name: "test",
+            address: address,
+            port: port,
+            username: username,
+            password: password,
+        }
+        await invoke_host_add(host)
     }
 
     function closeModal() {

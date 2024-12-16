@@ -1,47 +1,35 @@
+mod message;
+
+use crate::commands::message::{AuthMethod, Host, HostOS};
 use serde::{Deserialize, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
+
+/**
+export interface AddNewHostRequest {
+    name: string;
+    address: string;
+    port: number;
+    auth_method: HostAuthMethod;
+    comment: string;
+}
+**/
+
+pub enum SSHAuthorizeMethod {
+    Password(String),
+    PublicKey(String),
+}
+pub struct AddNewHostRequest {
+    pub name: String,
+    pub address: String,
+    pub port: u16,
+    pub auth_method: SSHAuthorizeMethod,
+}
 
 #[tauri::command]
-pub fn add_new_host(address: String, port: u16, username: String, password: String) {
-    println!("Adding new host: {}", address);
+pub fn add_new_host(name: String, address: String, port: u16, username: String, password: String) {
+    println!("Adding new host({}): {}", name, address);
     println!("Port: {}", port);
     println!("Username: {}", username);
     println!("Password: {}", password);
-}
-
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
-#[repr(u8)]
-pub enum AuthMethod {
-    Password = 0,
-    PublicKey = 1,
-}
-
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
-#[repr(u8)]
-pub enum HostOS {
-    Windows = 0,
-    Apple = 1,
-    Android = 2,
-    Ubuntu = 3,
-    Fedor = 4,
-    OpenSUSE = 5,
-    CentOS = 6,
-    ArchLinux = 7,
-    Debian = 8,
-    RedHat = 9,
-    Kali = 10,
-    RockyLinux = 11,
-    Unknown = 99,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Host {
-    id: String,
-    name: String,
-    address: String,
-    port: u16,
-    auth_method: AuthMethod,
-    os: HostOS,
-    comment: String,
 }
 
 #[tauri::command]
