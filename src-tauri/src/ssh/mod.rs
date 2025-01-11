@@ -1,14 +1,13 @@
 mod connection;
-mod manager;
+mod error;
 
-pub use connection::{SSHConnection, SSHError};
-pub use manager::{ConnectionManager, SharedConnectionManager, create_connection_manager}; 
+pub use error::SSHError;
 
 #[cfg(test)]
 pub mod test_utils {
     use dotenv::dotenv;
-    
+
     pub fn setup() {
         dotenv().ok();
     }
-} 
+}
