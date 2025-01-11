@@ -1,4 +1,5 @@
 mod commands;
+mod sshd;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
