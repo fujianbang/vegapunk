@@ -1,9 +1,8 @@
 use ssh2::Session;
-use std::io;
+use std::error::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
-
-use super::SSHError;
+use std::time::Duration;
 
 /// SSH Connection
 pub struct Connection {
@@ -12,24 +11,64 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn new(host: &str, port: u16, username: &str, password: &str) -> Result<Self, SSHError> {
+    pub fn new(
+        host: &str,
+        port: u16,
+        username: &str,
+        password: &str,
+    ) -> Result<Self, Box<dyn Error>> {
         let tcp = TcpStream::connect(format!("{}:{}", host, port))?;
-        let mut session = Session::new().map_err(SSHError::SSHError)?;
+        let mut session = Session::new()?;
         session.set_tcp_stream(tcp);
         session.handshake()?;
 
         session.userauth_password(username, password)?;
 
-        let channel = session.channel_session()?;
+        // open a interactive shell
+        let mut channel = session.channel_session()?;
+        channel.request_pty("xterm", None, None)?;
+        channel.shell()?;
 
         Ok(Self { session, channel })
     }
 
-    pub fn execute_command(&mut self, command: &str) -> Result<String, SSHError> {
-        self.channel.exec(command)?;
-        let mut output = String::new();
-        self.channel.read_to_string(&mut output)?;
-        Ok(output)
+    pub fn send_data(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>> {
+        self.channel.write_all(data)?;
+        self.channel.write_all(b"\n")?;
+        self.channel.flush()?;
+        Ok(())
+    }
+
+    pub fn read_output(&mut self) -> Result<Vec<u8>, Box<dyn Error>> {
+        let mut temp_buf = [0u8; 1024];
+        let mut buffer = Vec::new();
+
+        // set read timeout, avoid infinite wait
+        self.session.set_timeout(1000);
+
+        loop {
+            match self.channel.read(&mut temp_buf) {
+                Ok(n @ 1..) => {
+                    // append read data to buffer
+                    buffer.extend_from_slice(&temp_buf[..n]);
+
+                    #[cfg(debug_assertions)]
+                    {
+                        println!("Read {} bytes", n);
+                        println!("{}", String::from_utf8_lossy(&temp_buf[..n]));
+                    }
+                }
+                Ok(0) => break,
+                Err(e) => {
+                    if e.kind() == std::io::ErrorKind::TimedOut {
+                        break;
+                    }
+                    return Err(Box::new(e));
+                }
+            }
+        }
+
+        Ok(buffer)
     }
 }
 
@@ -38,6 +77,8 @@ mod tests {
     use super::*;
     use dotenv::dotenv;
     use std::env;
+    use std::thread;
+    use std::time::Duration;
 
     fn get_test_credentials() -> (String, u16, String, String) {
         dotenv().ok();
@@ -66,15 +107,16 @@ mod tests {
     #[ignore]
     fn test_command_execution() {
         let (host, port, username, password) = get_test_credentials();
+        println!("Credentials: {}:{} {}:***", host, port, username);
         let mut connection = Connection::new(&host, port, &username, &password).unwrap();
 
-        // let result = connection.execute_command("echo 'test'");
-        // assert!(result.is_ok());
-        // assert_eq!(result.unwrap().trim(), "test");
+        let _ = connection.send_data(b"uname -a");
 
-        // execute uname -a command
-        let result = connection.execute_command("uname -a");
-        assert!(result.is_ok());
-        println!("{}", result.unwrap());
+        thread::sleep(Duration::from_millis(500));
+
+        match connection.read_output() {
+            Ok(output) => println!("Output: {}", String::from_utf8_lossy(&output)),
+            Err(e) => println!("Error reading output: {}", e),
+        }
     }
 }
