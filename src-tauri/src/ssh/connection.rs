@@ -1,13 +1,21 @@
+use serde::Serialize;
 use ssh2::Session;
 use std::error::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
-use std::time::Duration;
+use std::sync::{Arc, Mutex};
+use tauri::ipc::Channel;
+
+#[derive(Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum SshEvent {
+    Data(String),
+}
 
 /// SSH Connection
 pub struct Connection {
-    session: Session,
-    channel: ssh2::Channel,
+    session: Arc<Mutex<Session>>,
+    channel: Arc<Mutex<ssh2::Channel>>,
 }
 
 impl Connection {
@@ -29,47 +37,68 @@ impl Connection {
         channel.request_pty("xterm", None, None)?;
         channel.shell()?;
 
-        Ok(Self { session, channel })
+        Ok(Self {
+            session: Arc::new(Mutex::new(session)),
+            channel: Arc::new(Mutex::new(channel)),
+        })
     }
 
-    pub fn send_data(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>> {
-        self.channel.write_all(data)?;
-        self.channel.write_all(b"\n")?;
-        self.channel.flush()?;
+    pub fn send_data(&self, data: &[u8]) -> Result<(), Box<dyn Error>> {
+        println!(
+            "send data to ssh: \n-------------------------\n{:?}\n-------------------------\n",
+            String::from_utf8_lossy(data)
+        );
+        let mut channel = self.channel.lock().unwrap();
+        channel.write_all(data)?;
+        channel.write_all(b"\n")?;
+        channel.flush()?;
         Ok(())
     }
 
-    pub fn read_output(&mut self) -> Result<Vec<u8>, Box<dyn Error>> {
-        let mut temp_buf = [0u8; 1024];
-        let mut buffer = Vec::new();
+    pub fn start_read_loop(&self) {
+        let channel = self.channel.clone();
 
-        // set read timeout, avoid infinite wait
-        self.session.set_timeout(1000);
+        tauri::async_runtime::spawn(async move {
+            let mut temp_buf = [0u8; 1024];
 
-        loop {
-            match self.channel.read(&mut temp_buf) {
-                Ok(n @ 1..) => {
-                    // append read data to buffer
-                    buffer.extend_from_slice(&temp_buf[..n]);
+            loop {
+                let mut channel = channel.lock().unwrap();
+                println!("read data from ssh");
+                match channel.read(&mut temp_buf) {
+                    Ok(n) if n > 0 => {
+                        let data = String::from_utf8_lossy(&temp_buf[..n]).to_string();
 
-                    #[cfg(debug_assertions)]
-                    {
-                        println!("Read {} bytes", n);
-                        println!("{}", String::from_utf8_lossy(&temp_buf[..n]));
+                        #[cfg(debug_assertions)]
+                        println!(
+                            "Read {} bytes\n-------------------------\n{}\n-------------------------\n",
+                            n, data
+                        );
+
+                        // if let Err(e) = pty_channel.send(SshEvent::Data(data)) {
+                        //     eprintln!("Failed to send data through channel: {}", e);
+                        //     break;
+                        // }
                     }
-                }
-                Ok(0) => break,
-                Err(e) => {
-                    if e.kind() == std::io::ErrorKind::TimedOut {
+                    Ok(_) => {
+                        println!("SSH channel closed");
                         break;
                     }
-                    return Err(Box::new(e));
+                    Err(e) => {
+                        if e.kind() == std::io::ErrorKind::TimedOut {
+                            continue;
+                        }
+                        eprintln!("Error reading SSH channel: {}", e);
+                        break;
+                    }
                 }
             }
-        }
-
-        Ok(buffer)
+        });
     }
+}
+
+#[derive(Clone, Serialize)]
+pub struct TerminalOutput {
+    data: String,
 }
 
 #[cfg(test)]
@@ -101,22 +130,15 @@ mod tests {
         println!("Credentials: {}:{} {}:***", host, port, username);
         let result = Connection::new(&host, port, &username, &password);
         assert!(result.is_ok());
-    }
 
-    #[test]
-    #[ignore]
-    fn test_command_execution() {
-        let (host, port, username, password) = get_test_credentials();
-        println!("Credentials: {}:{} {}:***", host, port, username);
-        let mut connection = Connection::new(&host, port, &username, &password).unwrap();
+        let connection = result.unwrap();
+        // read data from ssh
+        connection.start_read_loop();
 
-        let _ = connection.send_data(b"uname -a");
+        connection.send_data("ls -l".as_bytes()).unwrap();
+        thread::sleep(Duration::from_secs(1));
 
-        thread::sleep(Duration::from_millis(500));
-
-        match connection.read_output() {
-            Ok(output) => println!("Output: {}", String::from_utf8_lossy(&output)),
-            Err(e) => println!("Error reading output: {}", e),
-        }
+        connection.send_data("uname -a".as_bytes()).unwrap();
+        thread::sleep(Duration::from_secs(1));
     }
 }

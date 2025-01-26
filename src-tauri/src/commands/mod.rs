@@ -1,17 +1,17 @@
 mod message;
+pub mod ssh;
 
-use crate::commands::message::{AuthMethod, Host, HostOS};
+use crate::{
+    commands::message::{AuthMethod, Host, HostOS},
+    ssh::Connection,
+};
 use serde::{Deserialize, Serialize};
 
-/**
-export interface AddNewHostRequest {
-    name: string;
-    address: string;
-    port: number;
-    auth_method: HostAuthMethod;
-    comment: string;
+pub use ssh::{create_ssh_connection, listen_ssh_data, send_ssh_data};
+
+pub struct SSHState {
+    pub connection: Option<Connection>,
 }
-**/
 
 pub enum SSHAuthorizeMethod {
     Password(String),

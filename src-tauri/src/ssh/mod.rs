@@ -1,7 +1,7 @@
 mod connection;
 mod error;
 
-pub use error::SSHError;
+pub use connection::{Connection, SshEvent};
 
 #[cfg(test)]
 pub mod test_utils {

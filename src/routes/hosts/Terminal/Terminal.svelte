@@ -1,66 +1,54 @@
 <script lang="ts">
-    import {Terminal} from "@xterm/xterm";
-    import {FitAddon} from "@xterm/addon-fit";
-    import {onMount} from "svelte";
+    import { Terminal } from "@xterm/xterm";
+    import { FitAddon } from "@xterm/addon-fit";
+    import { onMount, onDestroy } from "svelte";
     import "@xterm/xterm/css/xterm.css";
-    import {AttachAddon} from '@xterm/addon-attach';
+    import { Channel, invoke } from "@tauri-apps/api/core";
+    import { listen } from "@tauri-apps/api/event";
 
-    let terminalObj: HTMLElement;
+    let terminalElement: HTMLElement;
+    let terminal: Terminal;
 
-    function packageMessage(message: string) {
-        return JSON.stringify({
-            type: "data",
-            payload: {
-                data: message
-            },
-        });
+    interface SshEvent {
+        event: "data";
+        data: string;
     }
 
-    function initTerminal() {
-        if (!terminalObj) {
-            alert("No terminal found");
-            return;
-        }
+    async function initTerminal() {
+        if (!terminalElement) return;
 
-        const term = new Terminal({
+        terminal = new Terminal({
             cursorBlink: true,
             fontSize: 14,
             theme: {
-                foreground: "#e0e1e4", //字体
+                foreground: "#e0e1e4",
                 background: "#181818",
             },
         });
 
         const fitAddon = new FitAddon();
-        term.loadAddon(fitAddon);
-        term.open(terminalObj);
+        terminal.loadAddon(fitAddon);
+        terminal.open(terminalElement);
         fitAddon.fit();
 
-        const ws = new WebSocket("ws://localhost:1234/ws/a706fe14-d770-4e74-813f-1bc592476eda/nginx");
-        const attachAddon = new AttachAddon(ws, {bidirectional: true});
-        term.loadAddon(attachAddon);
+        // create channel
+        const channel = new Channel<SshEvent>();
 
-        term.write(`Welcome to the Vegapunk!\r\n`);
-        term.onData((data) => {
-            const msg = packageMessage(data)
-            ws.send(msg)
+        channel.onmessage = (event: SshEvent) => {
+            terminal.write(event.data);
+        };
+
+        invoke("create_ssh_connection");
+        invoke("listen_ssh_data", { ptyChannel: channel });
+
+        // 处理用户输入
+        terminal.onData((data) => {
+            console.log(data);
+            invoke("send_ssh_data", { data });
+            terminal.write(data);
         });
-        term.onResize((size) => {
-            const msg = JSON.stringify({
-                type: "resize",
-                payload: {
-                    width: size.cols,
-                    height: size.rows
-                }
-            })
-            ws.send(msg)
-        })
 
-        window.addEventListener("resize", resizeScreen)
-
-        function resizeScreen() {
-            fitAddon.fit()
-        }
+        window.addEventListener("resize", () => fitAddon.fit());
     }
 
     onMount(() => {
@@ -68,4 +56,4 @@
     });
 </script>
 
-<div class="h-full" bind:this={terminalObj}></div>
+<div class="h-full" bind:this={terminalElement}></div>
