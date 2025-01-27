@@ -3,6 +3,7 @@ use ssh2::Session;
 use std::error::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::sync::mpsc::{channel as mpsc_channel, Sender as MpscSender};
 use std::sync::{Arc, Mutex};
 use tauri::ipc::Channel;
 
@@ -16,6 +17,7 @@ pub enum SshEvent {
 pub struct Connection {
     session: Arc<Mutex<Session>>,
     channel: Arc<Mutex<ssh2::Channel>>,
+    write_tx: MpscSender<Vec<u8>>,
 }
 
 impl Connection {
@@ -32,14 +34,32 @@ impl Connection {
 
         session.userauth_password(username, password)?;
 
-        // open a interactive shell
         let mut channel = session.channel_session()?;
         channel.request_pty("xterm", None, None)?;
         channel.shell()?;
 
+        let (write_tx, write_rx) = mpsc_channel();
+        let channel_clone = Arc::new(Mutex::new(channel));
+        let write_channel = channel_clone.clone();
+
+        tauri::async_runtime::spawn(async move {
+            while let Ok(data) = write_rx.recv() {
+                let mut channel = write_channel.lock().unwrap();
+                if let Err(e) = channel.write_all(&data) {
+                    eprintln!("Failed to write to SSH channel: {}", e);
+                    break;
+                }
+                if let Err(e) = channel.flush() {
+                    eprintln!("Failed to flush SSH channel: {}", e);
+                    break;
+                }
+            }
+        });
+
         Ok(Self {
             session: Arc::new(Mutex::new(session)),
-            channel: Arc::new(Mutex::new(channel)),
+            channel: channel_clone,
+            write_tx,
         })
     }
 
@@ -48,9 +68,7 @@ impl Connection {
             "send data to ssh: \n-------------------------\n{:?}\n-------------------------\n",
             String::from_utf8_lossy(data)
         );
-        let mut channel = self.channel.lock().unwrap();
-        channel.write_all(data)?;
-        channel.flush()?;
+        self.write_tx.send(data.to_vec())?;
         Ok(())
     }
 
@@ -62,28 +80,23 @@ impl Connection {
 
             loop {
                 let mut channel = channel.lock().unwrap();
-                println!("read data from ssh");
                 match channel.read(&mut temp_buf) {
                     Ok(n) if n > 0 => {
                         let data = String::from_utf8_lossy(&temp_buf[..n]).to_string();
-
                         #[cfg(debug_assertions)]
                         println!(
                             "Read {} bytes\n-------------------------\n{}\n-------------------------\n",
                             n, data
                         );
-
-                        // if let Err(e) = pty_channel.send(SshEvent::Data(data)) {
-                        //     eprintln!("Failed to send data through channel: {}", e);
-                        //     break;
-                        // }
                     }
-                    Ok(_) => {
+                    Ok(0) => {
                         println!("SSH channel closed");
                         break;
                     }
                     Err(e) => {
                         if e.kind() == std::io::ErrorKind::TimedOut {
+                            drop(channel);
+                            std::thread::sleep(std::time::Duration::from_millis(10));
                             continue;
                         }
                         eprintln!("Error reading SSH channel: {}", e);
