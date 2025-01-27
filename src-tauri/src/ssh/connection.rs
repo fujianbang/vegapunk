@@ -50,7 +50,6 @@ impl Connection {
         );
         let mut channel = self.channel.lock().unwrap();
         channel.write_all(data)?;
-        channel.write_all(b"\n")?;
         channel.flush()?;
         Ok(())
     }
@@ -135,10 +134,10 @@ mod tests {
         // read data from ssh
         connection.start_read_loop();
 
-        connection.send_data("ls -l".as_bytes()).unwrap();
+        connection.send_data("ls -l\n".as_bytes()).unwrap();
         thread::sleep(Duration::from_secs(1));
 
-        connection.send_data("uname -a".as_bytes()).unwrap();
+        connection.send_data("uname -a\n".as_bytes()).unwrap();
         thread::sleep(Duration::from_secs(1));
     }
 }
