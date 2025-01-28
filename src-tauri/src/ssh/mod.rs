@@ -1,13 +1,22 @@
 mod connection;
 mod error;
 
-pub use connection::{Connection, SshEvent};
+pub use connection::ConnectionManager;
 
-#[cfg(test)]
-pub mod test_utils {
-    use dotenv::dotenv;
+use serde::{Deserialize, Serialize};
 
-    pub fn setup() {
-        dotenv().ok();
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum HostServerMessage {
+    Connected { id: String },
+    Disconnected { id: String },
+    DataReceived(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum HostClientMessage {
+    Connect,
+    Disconnect { id: String },
+    SendData { id: String, data: String },
 }

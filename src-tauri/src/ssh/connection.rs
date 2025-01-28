@@ -1,23 +1,86 @@
 use serde::Serialize;
-use ssh2::Session;
+use ssh2::{Channel, Session};
 use std::error::Error;
-use std::io::prelude::*;
+use std::io::Write;
 use std::net::TcpStream;
-use std::sync::mpsc::{channel as mpsc_channel, Sender as MpscSender};
-use std::sync::{Arc, Mutex};
-use tauri::ipc::Channel;
+use std::sync::Arc;
+use std::{collections::HashMap, io::Read};
+use tokio::sync::broadcast::{Receiver, Sender};
+use tokio::sync::{broadcast, Mutex};
 
-#[derive(Serialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum SshEvent {
-    Data(String),
+use super::HostServerMessage;
+
+pub struct ConnectionManager {
+    // connection id -> connection
+    connection_sessions: Arc<Mutex<HashMap<String, Connection>>>,
 }
 
-/// SSH Connection
+impl ConnectionManager {
+    /// Create a new connection manager
+    pub fn new() -> Self {
+        Self {
+            connection_sessions: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    /// Create a new connection
+    pub async fn create_connection(
+        &self,
+        host: &str,
+        port: u16,
+        username: &str,
+        password: &str,
+    ) -> Result<(), Box<dyn Error>> {
+        let connection = Connection::new(host, port, username, password)?;
+
+        let id = uuid::Uuid::new_v4().to_string();
+
+        // add connection to manager
+        self.connection_sessions
+            .lock()
+            .await
+            .insert(id.clone(), connection);
+
+        Ok(())
+    }
+
+    pub async fn write_to_connection(&self, id: &str, data: &[u8]) -> Result<(), Box<dyn Error>> {
+        let mut sessions = self.connection_sessions.lock().await;
+
+        if let Some(connection) = sessions.get_mut(id) {
+            connection.write(data).await?;
+        }
+        Ok(())
+    }
+
+    pub async fn close_connection(&self, id: &str) -> Result<(), Box<dyn Error>> {
+        let mut sessions = self.connection_sessions.lock().await;
+        if let Some(connection) = sessions.get_mut(id) {
+            connection.close().await?;
+        }
+        Ok(())
+    }
+
+    // pub async fn get_connection_rx(&self, id: &str) -> Result<Receiver<Vec<u8>>, Box<dyn Error>> {
+    //     let mut sessions = self.connection_sessions.lock().await;
+    //     if let Some(connection) = sessions.get(id) {
+    //         Ok(connection.rx.subscribe())
+    //     } else {
+    //         Err(format!("Connection {} not found", id).into())
+    //     }
+    // }
+}
+
+/// A SSH Connection
+///
+/// This struct is used to represent a SSH connection
 pub struct Connection {
-    session: Arc<Mutex<Session>>,
-    channel: Arc<Mutex<ssh2::Channel>>,
-    write_tx: MpscSender<Vec<u8>>,
+    // session to connect to ssh
+    session: Session,
+    // channel to send data to ssh
+    channel: Arc<Mutex<Channel>>,
+    // receiver to receive data from ssh
+    tx: Sender<Vec<u8>>,
 }
 
 impl Connection {
@@ -38,73 +101,64 @@ impl Connection {
         channel.request_pty("xterm", None, None)?;
         channel.shell()?;
 
-        let (write_tx, write_rx) = mpsc_channel();
-        let channel_clone = Arc::new(Mutex::new(channel));
-        let write_channel = channel_clone.clone();
+        let channel = Arc::new(Mutex::new(channel));
+
+        let (tx, mut rx) = broadcast::channel(100);
+
+        let channel_clone = Arc::clone(&channel);
+
+        let tx1 = tx.clone();
 
         tauri::async_runtime::spawn(async move {
-            while let Ok(data) = write_rx.recv() {
-                let mut channel = write_channel.lock().unwrap();
-                if let Err(e) = channel.write_all(&data) {
-                    eprintln!("Failed to write to SSH channel: {}", e);
-                    break;
+            let mut buf = vec![0; 1024];
+            let mut channel = channel_clone.lock().await;
+
+            loop {
+                match channel.read(&mut buf) {
+                    Ok(n) if n > 0 => {
+                        if let Err(e) = tx1.send(buf[..n].to_vec()) {
+                            eprintln!("Failed to send data: {}", e);
+                        }
+                    }
+                    Ok(_) => break,
+                    Err(e) => {
+                        eprintln!("Error reading from channel: {}", e);
+                        break;
+                    }
                 }
-                if let Err(e) = channel.flush() {
-                    eprintln!("Failed to flush SSH channel: {}", e);
-                    break;
-                }
+            }
+        });
+
+        tauri::async_runtime::spawn(async move {
+            loop {
+                let data = rx.recv().await.unwrap();
+                println!("got data from rx: {:?}", String::from_utf8(data).unwrap());
             }
         });
 
         Ok(Self {
-            session: Arc::new(Mutex::new(session)),
-            channel: channel_clone,
-            write_tx,
+            session,
+            channel,
+            tx,
         })
     }
 
-    pub fn send_data(&self, data: &[u8]) -> Result<(), Box<dyn Error>> {
-        println!(
-            "send data to ssh: \n-------------------------\n{:?}\n-------------------------\n",
-            String::from_utf8_lossy(data)
-        );
-        self.write_tx.send(data.to_vec())?;
+    /// Write data to the SSH channel
+    async fn write(&mut self, data: &[u8]) -> Result<(), Box<dyn Error>> {
+        let mut channel = self.channel.lock().await;
+        channel.write_all(data)?;
+        channel.flush()?;
         Ok(())
     }
 
-    pub fn start_read_loop(&self) {
-        let channel = self.channel.clone();
+    pub fn subscribe(&self) -> Receiver<Vec<u8>> {
+        self.tx.subscribe()
+    }
 
-        tauri::async_runtime::spawn(async move {
-            let mut temp_buf = [0u8; 1024];
-
-            loop {
-                let mut channel = channel.lock().unwrap();
-                match channel.read(&mut temp_buf) {
-                    Ok(n) if n > 0 => {
-                        let data = String::from_utf8_lossy(&temp_buf[..n]).to_string();
-                        #[cfg(debug_assertions)]
-                        println!(
-                            "Read {} bytes\n-------------------------\n{}\n-------------------------\n",
-                            n, data
-                        );
-                    }
-                    Ok(0) => {
-                        println!("SSH channel closed");
-                        break;
-                    }
-                    Err(e) => {
-                        if e.kind() == std::io::ErrorKind::TimedOut {
-                            drop(channel);
-                            std::thread::sleep(std::time::Duration::from_millis(10));
-                            continue;
-                        }
-                        eprintln!("Error reading SSH channel: {}", e);
-                        break;
-                    }
-                }
-            }
-        });
+    /// Close the SSH connection
+    async fn close(&mut self) -> Result<(), Box<dyn Error>> {
+        self.channel.lock().await.close()?;
+        Ok(())
     }
 }
 
@@ -118,8 +172,6 @@ mod tests {
     use super::*;
     use dotenv::dotenv;
     use std::env;
-    use std::thread;
-    use std::time::Duration;
 
     fn get_test_credentials() -> (String, u16, String, String) {
         dotenv().ok();
@@ -135,22 +187,28 @@ mod tests {
         )
     }
 
-    #[test]
+    #[tokio::test]
     #[ignore]
-    fn test_successful_connection() {
+    async fn test_successful_connection() {
         let (host, port, username, password) = get_test_credentials();
         println!("Credentials: {}:{} {}:***", host, port, username);
-        let result = Connection::new(&host, port, &username, &password);
-        assert!(result.is_ok());
+        let mut connection = Connection::new(&host, port, &username, &password)
+            .expect("Failed to create connection");
 
-        let connection = result.unwrap();
-        // read data from ssh
-        connection.start_read_loop();
+        let mut rx = connection.subscribe();
 
-        connection.send_data("ls -l\n".as_bytes()).unwrap();
-        thread::sleep(Duration::from_secs(1));
+        tauri::async_runtime::spawn(async move {
+            loop {
+                println!("waiting for data");
+                let data = rx.recv().await.unwrap();
+                println!(
+                    "got data from connection: {:?}",
+                    String::from_utf8(data).unwrap()
+                );
+            }
+        });
 
-        connection.send_data("uname -a\n".as_bytes()).unwrap();
-        thread::sleep(Duration::from_secs(1));
+        connection.write("uname -a\n".as_bytes()).await.unwrap();
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
 }

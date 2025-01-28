@@ -1,6 +1,6 @@
-use super::SSHState;
-use crate::ssh::{Connection, SshEvent};
-use std::sync::Mutex;
+use crate::ssh::{ConnectionManager, HostServerMessage};
+use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
 use tauri::ipc::Channel;
 use tauri::State;
 
@@ -14,45 +14,52 @@ fn get_test_credentials() -> (String, u16, String, String) {
 }
 
 #[tauri::command]
-pub async fn create_ssh_connection(state: State<'_, Mutex<SSHState>>) -> Result<(), String> {
+pub async fn create_ssh_connection(state: State<'_, Arc<ConnectionManager>>) -> Result<(), String> {
     let (host, port, username, password) = get_test_credentials();
     println!("Credentials: {}:{} {}:***", host, port, username);
 
-    let connection =
-        Connection::new(&host, port, &username, &password).map_err(|e| e.to_string())?;
-
-    let mut state = state.lock().unwrap();
-
-    state.connection = Some(connection);
+    let manager = Arc::clone(&state);
+    manager
+        .create_connection(&host, port, &username, &password)
+        .await
+        .map_err(|e| e.to_string())?;
 
     Ok(())
 }
 
 #[tauri::command]
-pub async fn listen_ssh_data(
-    state: State<'_, Mutex<SSHState>>,
-    pty_channel: Channel<SshEvent>,
+pub async fn listen_to_ssh(
+    channel: Channel<HostServerMessage>,
+    state: State<'_, Arc<ConnectionManager>>,
 ) -> Result<(), String> {
-    let mut state = state.lock().unwrap();
+    // let manager = Arc::clone(&state);
 
-    println!("Connection listening started");
-    if let Some(conn) = state.connection.take() {
-        // 启动读取循环
-        conn.start_read_loop();
-    }
-    println!("Connection listening closed");
+    // let mut rx = manager.tx.subscribe();
+
+    // tauri::async_runtime::spawn(async move {
+    //     while let Ok(msg) = rx.recv().await {
+    //         println!("ready to send: {:?}", msg);
+    //         channel.send(msg).unwrap();
+    //     }
+    // });
+
     Ok(())
 }
 
 #[tauri::command]
-pub async fn send_ssh_data(state: State<'_, Mutex<SSHState>>, data: String) -> Result<(), String> {
-    let state = state.lock().unwrap();
+pub async fn send_ssh_data(
+    session_id: &str,
+    data: String,
+    state: State<'_, Arc<ConnectionManager>>,
+) -> Result<(), String> {
+    let manager = Arc::clone(&state);
 
-    println!("send data: {}", data);
+    println!("got data[{}]: {:?}", session_id, data);
 
-    if let Some(conn) = state.connection.as_ref() {
-        conn.send_data(data.as_bytes()).map_err(|e| e.to_string())?;
-    }
+    manager
+        .write_to_connection(session_id, data.as_bytes())
+        .await
+        .map_err(|e| e.to_string())?;
 
     Ok(())
 }
