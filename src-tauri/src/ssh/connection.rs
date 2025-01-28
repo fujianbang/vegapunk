@@ -131,6 +131,7 @@ impl Connection {
 
         tauri::async_runtime::spawn(async move {
             loop {
+                // TODO
                 let _ = rx.recv().await.unwrap();
             }
         });
