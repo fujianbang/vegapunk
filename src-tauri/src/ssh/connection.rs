@@ -131,8 +131,7 @@ impl Connection {
 
         tauri::async_runtime::spawn(async move {
             loop {
-                let data = rx.recv().await.unwrap();
-                println!("got data from rx: {:?}", String::from_utf8(data).unwrap());
+                let _ = rx.recv().await.unwrap();
             }
         });
 
@@ -199,7 +198,6 @@ mod tests {
 
         tauri::async_runtime::spawn(async move {
             loop {
-                println!("waiting for data");
                 let data = rx.recv().await.unwrap();
                 println!(
                     "got data from connection: {:?}",
