@@ -47,7 +47,7 @@
 
         terminal.onData((data) => {
             console.log(data);
-            invoke("communicate", { session_id: "123-test", data });
+            invoke("communicate", { session_id: "communicate-test", data });
         });
 
         window.addEventListener("resize", () => fitAddon.fit());

@@ -18,7 +18,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::add_new_host,
             commands::get_hosts,
-            commands::ssh::send_ssh_data,
+            commands::ssh::communicate,
             commands::ssh::listen_ssh_data,
             commands::ssh::create_ssh_connection,
         ])

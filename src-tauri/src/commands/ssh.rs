@@ -39,19 +39,14 @@ pub async fn listen_ssh_data(session_id: String, channel: Channel<Server2ClientM
 }
 
 #[tauri::command]
-pub async fn send_ssh_data(
-    session_id: &str,
+pub async fn communicate(
+    session_id: String,
     data: String,
     state: State<'_, Arc<ConnectionManager>>,
 ) -> Result<(), String> {
-    let manager = Arc::clone(&state);
+    // let manager = Arc::clone(&state);
 
     println!("got data[{}]: {:?}", session_id, data);
-
-    manager
-        .write_to_connection(session_id, data.as_bytes())
-        .await
-        .map_err(|e| e.to_string())?;
 
     Ok(())
 }

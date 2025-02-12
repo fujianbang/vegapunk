@@ -4,7 +4,7 @@ pub mod ssh;
 use crate::commands::message::{AuthMethod, Host, HostOS};
 use serde::{Deserialize, Serialize};
 
-pub use ssh::{create_ssh_connection, listen_ssh_data, send_ssh_data};
+pub use ssh::{create_ssh_connection, listen_ssh_data, communicate};
 
 pub enum SSHAuthorizeMethod {
     Password(String),
