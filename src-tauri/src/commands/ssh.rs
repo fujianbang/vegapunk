@@ -1,4 +1,4 @@
-use crate::ssh::{ConnectionManager, HostServerMessage};
+use crate::ssh::{ConnectionManager, Server2ClientMsg};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tauri::ipc::Channel;
@@ -28,22 +28,14 @@ pub async fn create_ssh_connection(state: State<'_, Arc<ConnectionManager>>) -> 
 }
 
 #[tauri::command]
-pub async fn listen_to_ssh(
-    channel: Channel<HostServerMessage>,
-    state: State<'_, Arc<ConnectionManager>>,
-) -> Result<(), String> {
-    // let manager = Arc::clone(&state);
+pub async fn listen_ssh_data(session_id: String, channel: Channel<Server2ClientMsg>) {
+    println!("Got listener: {}", session_id);
 
-    // let mut rx = manager.tx.subscribe();
-
-    // tauri::async_runtime::spawn(async move {
-    //     while let Ok(msg) = rx.recv().await {
-    //         println!("ready to send: {:?}", msg);
-    //         channel.send(msg).unwrap();
-    //     }
-    // });
-
-    Ok(())
+    loop {
+        let msg = format!("{}\r\n", chrono::Local::now());
+        channel.send(Server2ClientMsg::Data(msg)).unwrap();
+        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    }
 }
 
 #[tauri::command]

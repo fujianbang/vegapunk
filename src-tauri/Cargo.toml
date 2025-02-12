@@ -24,6 +24,7 @@ tauri-plugin-websocket = "2"
 serde_repr = "0.1.19"
 tokio = "1.39.2"
 uuid = { version = "1.7.0", features = ["v4"] }
+chrono = "0.4"
 
 [dev-dependencies]
 dotenv = "0.15"

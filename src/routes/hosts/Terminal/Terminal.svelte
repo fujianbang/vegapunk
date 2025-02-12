@@ -5,6 +5,7 @@
     import "@xterm/xterm/css/xterm.css";
     import { Channel, invoke } from "@tauri-apps/api/core";
     import { listen } from "@tauri-apps/api/event";
+    
 
     let terminalElement: HTMLElement;
     let terminal: Terminal;
@@ -35,17 +36,18 @@
         const channel = new Channel<SshEvent>();
 
         channel.onmessage = (event: SshEvent) => {
+            console.log("got data", event);
             terminal.write(event.data);
         };
 
-        invoke("create_ssh_connection");
-        invoke("listen_ssh_data", { ptyChannel: channel });
+        // invoke("create_ssh_connection");
 
-        // 处理用户输入
+        console.log("ready to listen");
+        invoke("listen_ssh_data", { sessionId: "2222-test", channel });
+
         terminal.onData((data) => {
             console.log(data);
-            invoke("send_ssh_data", { data });
-            terminal.write(data);
+            invoke("communicate", { session_id: "123-test", data });
         });
 
         window.addEventListener("resize", () => fitAddon.fit());
