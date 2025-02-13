@@ -6,9 +6,6 @@
     "main"
   ],
   "permissions": [
-    "core:default",
-    "shell:allow-open",
-    "websocket:default",
-    "websocket:default"
+    "core:default"
   ]
 }

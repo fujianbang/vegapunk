@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tauri::ipc::Channel;
 use tauri::State;
+use tokio::time::{sleep, Duration};
 
 fn get_test_credentials() -> (String, u16, String, String) {
     (
@@ -34,7 +35,7 @@ pub async fn listen_ssh_data(session_id: String, channel: Channel<Server2ClientM
     loop {
         let msg = format!("{}\r\n", chrono::Local::now());
         channel.send(Server2ClientMsg::Data(msg)).unwrap();
-        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+        sleep(Duration::from_secs(2)).await;
     }
 }
 
