@@ -1,9 +1,9 @@
 use argon2::{
     password_hash::{
+        rand_core::OsRng,
         PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use rand_core::OsRng;
 
 /// Derive key from password and salt
 fn derive_key(password: &[u8], salt: SaltString) -> String {
@@ -28,14 +28,17 @@ fn verify_password(password_hash: &str, password: &[u8]) -> bool {
         .is_ok()
 }
 
+fn random_salt() -> SaltString {
+    SaltString::generate(&mut OsRng)
+}
+
 #[cfg(test)]
 mod test {
-
     use super::*;
 
     #[test]
     fn test_verify_password() {
-        let salt = SaltString::generate(&mut OsRng);
+        let salt = random_salt();
         let key = derive_key(b"password", salt);
         assert!(verify_password(&key, b"password"));
     }
