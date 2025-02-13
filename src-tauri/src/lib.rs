@@ -5,6 +5,7 @@ use tauri::Manager;
 
 mod commands;
 mod ssh;
+mod encrypt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
